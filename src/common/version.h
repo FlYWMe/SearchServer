@@ -1,0 +1,22 @@
+#ifndef VERSION_H_
+#define VERSION_H_
+
+#ifdef VERSION_MAJOR
+    #define VERIFIER_VERSION_MAJOR VERSION_MAJOR
+#else
+    #define VERIFIER_VERSION_MAJOR 0
+#endif
+
+#ifdef VERSION_MINOR
+    #define VERIFIER_VERSION_MINOR VERSION_MINOR
+#else
+    #define VERIFIER_VERSION_MINOR 0
+#endif // DVERSION_MINOR
+
+#ifdef VERSION_PATCH
+    #define VERIFIER_VERSION_PATCH VERSION_PATCH
+#else 
+    #define VERIFIER_VERSION_PATCH 0
+#endif
+
+#endif // VERSION_H_
