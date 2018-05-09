@@ -16,6 +16,18 @@
 
 ## 1 概述
 
+**一个基于 faiss 的每日构建索引的检索服务**
+
+主要功能包括:
+
+- 添加向量至索引结构
+- 检索向量
+ - topK Search
+ - Approximate Nearest Neighbor Search 
+- 按日期检索
+- 删除指定id向量或范围内向量
+- 重新配置
+
 |目录|说明|
 |:--:|:--:|
 |cmake|cmake脚本文件|
