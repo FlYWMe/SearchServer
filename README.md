@@ -60,9 +60,10 @@ $ make -j"$(nproc)"
 $ ./bin/queryServer
 
 # unit test
-$ ./bin/FaissCPUSearch
-$ ./bin/FaissGPUSearch
+$ ./bin/FaissCPUSearch  # CPU flat暴力搜索采用最大堆实现
+$ ./bin/FaissGPUSearch  # GPU flat warpSlect
 $ ./bin/HNSWSearch
+$ ./bin/sift1M  # sift1M GPU flat recall @1:99.19% @10:1 @100:1
 
 # function test
 $ ./bin/FaissLoadTest
