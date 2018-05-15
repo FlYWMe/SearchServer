@@ -10,33 +10,31 @@
 using namespace std;
 using namespace dev;
 
-faissSearch::faissSearch(const string &indexKey, const int dimension, bool useGPU, faiss::MetricType metric)
+faissSearch::faissSearch(const string &indexKey, const int dimension, bool useGPU, bool initGpuResources, faiss::MetricType metric)
 {
     faissIndex.reset(faiss::index_factory(dimension, indexKey.c_str(), metric));
     is_trained = faissIndex->is_trained;
     usegpu = useGPU;
     ntotal = faissIndex->ntotal;
     dim = dimension;
-    if (useGPU)
+    if (useGPU && initGpuResources)
     {
 #ifdef CUDA_VERSION
-        if (!initGpuResources)
+
+        ngpus = faiss::gpu::getNumDevices();
+        for (int i = 0; i < ngpus; i++)
         {
-            ngpus = faiss::gpu::getNumDevices();
-            for (int i = 0; i < ngpus; i++)
-            {
-                res.push_back(new faiss::gpu::StandardGpuResources);
-                devs.push_back(i);
-            }
-            options->indicesOptions = faiss::gpu::INDICES_64_BIT;
-            options->useFloat16CoarseQuantizer = false;
-            options->useFloat16 = false;
-            options->usePrecomputed = false;
-            options->reserveVecs = 0;
-            options->storeTransposed = false;
-            options->verbose = true;
-            initGpuResources = true;
+            res.push_back(new faiss::gpu::StandardGpuResources);
+            devs.push_back(i);
         }
+        options->indicesOptions = faiss::gpu::INDICES_64_BIT;
+        options->useFloat16CoarseQuantizer = false;
+        options->useFloat16 = false;
+        options->usePrecomputed = false;
+        options->reserveVecs = 0;
+        options->storeTransposed = false;
+        options->verbose = true;
+
         faissIndex.reset(faiss::gpu::index_cpu_to_gpu_multiple(res, devs, faissIndex.get()));
 #else
         LOG(WARNING) << "This release doesn't support GPU search";

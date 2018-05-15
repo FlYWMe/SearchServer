@@ -25,7 +25,7 @@ public:
   idx_t ntotal;    ///< total nb of indexed vectors
   bool is_trained; ///< set if the Index does not require training, or if training is done already
 
-  faissSearch(const string &indexKey, const int d, bool useGPU = true, faiss::MetricType metric = faiss::METRIC_L2);
+  faissSearch(const string &indexKey, const int d, bool useGPU = true, bool initGpuResources = false, faiss::MetricType metric = faiss::METRIC_INNER_PRODUCT);
   virtual void reset();
   /**
      * @brief Load dataset from disk
@@ -90,7 +90,6 @@ private:
   vector<faiss::gpu::GpuResources *> res;
   vector<int> devs;
   faiss::gpu::GpuMultipleClonerOptions *options = new faiss::gpu::GpuMultipleClonerOptions();
-  bool initGpuResources = false;
 };
 }
 

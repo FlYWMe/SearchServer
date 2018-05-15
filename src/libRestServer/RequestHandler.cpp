@@ -12,7 +12,7 @@ using json = nlohmann::json;
 
 RequestHandler::RequestHandler(ConfigParams *_cp) : cp(_cp)
 {
-    search.reset(new faissSearch(_cp->searchFactory, _cp->dimension, _cp->usegpu));
+    search.reset(new faissSearch(_cp->searchFactory, _cp->dimension, _cp->usegpu,true));
     searchdays.reset(new faissSearch(cp->searchFactory, cp->dimension, cp->usegpu));
     search_processor.reset(new SearchProcessor(_cp));
     search_processor->RegistAPI(this);
