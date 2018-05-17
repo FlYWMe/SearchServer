@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.0.2)
-project (QueryServer)
+project (Searcher)
 
 # The project version number.
 set(VERSION_MAJOR   0   CACHE STRING "Project major version number.")
@@ -37,9 +37,9 @@ add_subdirectory (test)
 add_subdirectory (docs)
 
 # Install
-install(PROGRAMS ${CMAKE_BINARY_DIR}/bin/queryServer DESTINATION bin)
-# install(DIRECTORY model DESTINATION /etc/queryServer)
-# install(FILES config.json DESTINATION /etc/queryServer)
+install(PROGRAMS ${CMAKE_BINARY_DIR}/bin/searcher DESTINATION bin)
+# install(DIRECTORY model DESTINATION /etc/searcher)
+# install(FILES config.json DESTINATION /etc/searcher)
 
 # cpack config, make package
 set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})

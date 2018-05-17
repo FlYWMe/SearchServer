@@ -12,7 +12,7 @@ using json = nlohmann::json;
 
 RequestHandler::RequestHandler(ConfigParams *_cp) : cp(_cp)
 {
-    search.reset(new faissSearch(_cp->searchFactory, _cp->dimension, _cp->usegpu,true));
+    search.reset(new faissSearch(_cp->searchFactory, _cp->dimension, _cp->usegpu, true));
     searchdays.reset(new faissSearch(cp->searchFactory, cp->dimension, cp->usegpu));
     search_processor.reset(new SearchProcessor(_cp));
     search_processor->RegistAPI(this);
@@ -51,7 +51,7 @@ void RequestHandler::WriteLog(const string &interface, const json &resp, const T
     auto tp = chrono::system_clock::to_time_t(timePoints.front());
     strftime(timeStr, sizeof(timeStr), "%H:%M:%S", std::localtime(&tp));
     LOG(INFO) << "|Req Time: " << timeStr << left << "|Interface: " << interface << "|Time Used: " << timeLong.count() << " ms"
-              << "|Result: " << resp << endl;
+              << "|Result: " << resp << "|indexNum: " << search->ntotal << endl;
 }
 
 void RequestHandler::Reconfig(string const &request, string &responseBody, string &httpCode)

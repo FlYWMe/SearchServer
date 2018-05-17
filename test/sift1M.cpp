@@ -129,7 +129,7 @@ int main()
         printf("[%.3f s] Indexing database, size %ld*%ld\n",
                elapsed() - t0, nb, d);
         std::vector<long> xid(nb, 0);
-        for (int i = 0; i < nb; i++)
+        for (size_t i = 0; i < nb; i++)
         {
             xid[i] = i;
         }
@@ -162,7 +162,7 @@ int main()
         assert(nq2 == nq || !"incorrect nb of ground truth entries");
 
         gt = new faiss::Index::idx_t[k * nq];
-        for (int i = 0; i < k * nq; i++)
+        for (size_t i = 0; i < k * nq; i++)
         {
             gt[i] = gt_int[i];
         }
@@ -200,7 +200,7 @@ int main()
         ops.display();
 
         // keep the first parameter that obtains > 0.5 1-recall@1
-        for (int i = 0; i < ops.optimal_pts.size(); i++)
+        for (size_t i = 0; i < ops.optimal_pts.size(); i++)
         {
             if (ops.optimal_pts[i].perf > 0.5)
             {
@@ -234,10 +234,10 @@ int main()
 
         // evaluate result by hand.
         int n_1 = 0, n_10 = 0, n_100 = 0;
-        for (int i = 0; i < nq; i++)
+        for (size_t i = 0; i < nq; i++)
         {
             int gt_nn = gt[i * k];
-            for (int j = 0; j < k; j++)
+            for (size_t j = 0; j < k; j++)
             {
                 if (I[i * k + j] == gt_nn)
                 {

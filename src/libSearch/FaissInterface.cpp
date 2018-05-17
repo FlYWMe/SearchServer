@@ -20,7 +20,6 @@ faissSearch::faissSearch(const string &indexKey, const int dimension, bool useGP
     if (useGPU && initGpuResources)
     {
 #ifdef CUDA_VERSION
-
         ngpus = faiss::gpu::getNumDevices();
         for (int i = 0; i < ngpus; i++)
         {
@@ -34,7 +33,7 @@ faissSearch::faissSearch(const string &indexKey, const int dimension, bool useGP
         options->reserveVecs = 0;
         options->storeTransposed = false;
         options->verbose = true;
-
+        initGpuResources = true;
         faissIndex.reset(faiss::gpu::index_cpu_to_gpu_multiple(res, devs, faissIndex.get()));
 #else
         LOG(WARNING) << "This release doesn't support GPU search";
