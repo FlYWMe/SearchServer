@@ -7,6 +7,7 @@ set -e
 
 main()
 {
+    mkdir deps
     cd ./deps
     tar -zxf libopenblas.tar.gz && \
     sudo dpkg -i libblas-common_3.6.0-2ubuntu2_amd64.deb && \

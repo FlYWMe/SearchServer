@@ -11,7 +11,7 @@ RUN apt-get update && \
     apt-get install -y git-lfs && \
     git lfs install --skip-smudge && \
     git lfs pull && \
-    bash scripts/install_deps.sh && \
+    bash scripts/install_deps.sh && \    
     mkdir build && \
     cd build && \
     cmake .. && \
