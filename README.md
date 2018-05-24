@@ -63,7 +63,7 @@ $ ./bin/queryServer
 $ ./bin/FaissCPUSearch  # CPU flat暴力搜索采用最大堆实现
 $ ./bin/FaissGPUSearch  # GPU flat warpSlect
 $ ./bin/HNSWSearch
-$ ./bin/sift1M  # sift1M GPU flat recall @1:99.19% @10:1 @100:1
+$ ./bin/sift1M  # datasets:http://corpus-texmex.irisa.fr/ sift1M GPU flat recall @1:99.19% @10:1 @100:1
 
 # function test
 $ ./bin/FaissLoadTest

@@ -26,7 +26,7 @@ public:
   bool is_trained; ///< set if the Index does not require training, or if training is done already
 
   faissSearch(const string &indexKey, const int d, bool useGPU = true,  bool initGpuResources = false, faiss::MetricType metric = faiss::METRIC_INNER_PRODUCT);
-  virtual void reset();
+  virtual bool reset();
   /**
      * @brief Load dataset from disk
      * 

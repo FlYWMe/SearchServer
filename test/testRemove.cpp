@@ -14,29 +14,51 @@ using namespace dev;
 
 int main()
 {
-    int d = 512;      // dimension
-    int nb = 1000000; // database size
+    int d = 256;      // dimension
+    int nb = 1000; // database size
     int nq = 1;       // nb of queries
     string searchMethod("IDMap,Flat");
 
     vector<float> xb(d * nb, 0);
     vector<float> xq(d * nq, 0);
     vector<long> xid(nb, 0);
+    vector<float> sumb(nb, 0);
+    vector<float> sumq(nq, 0);
     for (int i = 0; i < nb; i++)
     {
         for (int j = 0; j < d; j++)
+        {
             xb[d * i + j] = drand48();
-        xb[d * i] += i / 1000.;
+            sumb[i] += xb[d * i + j] * xb[d * i + j];
+        }
+        sumb[i] = sqrt(sumb[i]);
         xid[i] = i;
     }
-
+    for (int i = 0; i < nb; i++)
+    {
+        for (int j = 0; j < d; j++)
+        {
+            xb[d * i + j] /= sumb[i];
+        }
+    }
     for (int i = 0; i < nq; i++)
     {
         for (int j = 0; j < d; j++)
+        {
             xq[d * i + j] = drand48();
-        xq[d * i] += i / 1000.;
+            sumq[i] += xq[d * i + j] * xq[d * i + j];
+        }
+        sumq[i] = sqrt(sumq[i]);        
     }
-    shared_ptr<faissSearch> index(new faissSearch(searchMethod, d, true));
+    for (int i = 0; i < nq; i++)
+    {
+        for (int j = 0; j < d; j++)
+        {
+            xq[d * i + j] /= sumq[i];
+        }
+    }
+
+    shared_ptr<faissSearch> index(new faissSearch(searchMethod, d, true, true));
     //index->train(nb, xb.data());
     chrono::system_clock::time_point t1 = chrono::system_clock::now();
     index->add_with_ids(nb, xb.data(), xid.data()); // add vectors to the index
@@ -61,7 +83,7 @@ int main()
         for (int i = 0; i < nq; i++)
         {
             for (int j = 0; j < k; j++)
-                cout << setprecision(3) << setw(5) << I[i * k + j] << " ";
+                cout << setprecision(3) << setw(8) << I[i * k + j] << " ";
             cout << endl;
         }
 
@@ -69,7 +91,7 @@ int main()
         for (int i = 0; i < nq; i++)
         {
             for (int j = 0; j < k; j++)
-                cout << setw(5) << D[i * k + j];
+                cout << setw(8) << D[i * k + j] << " ";
             cout << endl;
         }
     }
@@ -109,7 +131,7 @@ int main()
         for (int i = 0; i < nq; i++)
         {
             for (int j = 0; j < k; j++)
-                cout << setprecision(3) << setw(5) << I[i * k + j] << " ";
+                cout << setprecision(3) << setw(8) << I[i * k + j] << " ";
             cout << endl;
         }
 
@@ -117,7 +139,7 @@ int main()
         for (int i = 0; i < nq; i++)
         {
             for (int j = 0; j < k; j++)
-                cout << setw(5) << D[i * k + j];
+                cout << setw(8) << D[i * k + j] << " ";
             cout << endl;
         }
     }

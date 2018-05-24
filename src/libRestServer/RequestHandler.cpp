@@ -23,14 +23,17 @@ RequestHandler::RequestHandler(ConfigParams *_cp) : cp(_cp)
         LOG(ERROR) << "load data failed." << endl;
         return;
     }
-    LOG(INFO) << "load data success." << endl;
-    bool res = search->add_with_ids((idx_t)ids.size(), features.data(), ids.data());
-    if (!res)
+    else
     {
-        LOG(ERROR) << "add loaded data failed." << endl;
-        return;
+        LOG(INFO) << "load data success." << endl;
+        bool res = search->add_with_ids((idx_t)ids.size(), features.data(), ids.data());
+        if (!res)
+        {
+            LOG(ERROR) << "add loaded data failed." << endl;
+            return;
+        }
+        LOG(INFO) << "add loaded data success." << endl;
     }
-    LOG(INFO) << "add loaded data success." << endl;
 }
 
 RequestHandler::~RequestHandler() {}
@@ -60,36 +63,7 @@ void RequestHandler::Reconfig(string const &request, string &responseBody, strin
     string interfaceName("/reconfig");
     json value = json::parse(request);
     json resp;
-    if (value["reconfigFilePath"].is_null())
-    {
-        responseBody = FillResponse(interfaceName, resp, MISSING_ARGUMENTS);
-        httpCode = BAD_REQUEST;
-        return;
-    }
-    if (!value["reconfigFilePath"].is_string())
-    {
-        responseBody = FillResponse(interfaceName, resp, INVALID_RECONFIG_FILEPATH);
-        httpCode = BAD_REQUEST;
-        return;
-    }
-    string reconfigPath = value["reconfigFilePath"];
-    cp = new ConfigParams(reconfigPath);
-    search.reset(new faissSearch(cp->searchFactory, cp->dimension, cp->usegpu));
-    vector<long> ids;
-    vector<float> features;
-    if (!search->load(cp->dataFilePath, ids, features))
-    {
-        responseBody = FillResponse(interfaceName, resp, RELOAD_FAIL);
-        httpCode = BAD_REQUEST;
-        return;
-    }
-    bool res = search->add_with_ids((idx_t)ids.size(), features.data(), ids.data());
-    if (!res)
-    {
-        responseBody = FillResponse(interfaceName, resp, READD_FAIL);
-        httpCode = BAD_REQUEST;
-        return;
-    }
+    bool res = search->reset();
     responseBody = FillResponse(interfaceName, resp, RECONFIG_SUCCESS, timepoints);
     httpCode = OK;
 }
@@ -211,10 +185,18 @@ void RequestHandler::Query(string const &request, string &responseBody, string &
     vector<float> resDistance(n * k, 0);
     vector<long> resLabels(n * k, 0);
     bool res = search->search(n, features.data(), k, resDistance.data(), resLabels.data());
+    if (search->ntotal == 0)
+    {
+        resDistance.assign(n * k, -1);
+    }
     json queryMap;
     json resultMap;
     vector<float> dis(k, 0);
     vector<long> label(k, 0);
+    for (size_t i = 0; i < resDistance.size(); i++)
+    {
+        resDistance[i] = resDistance[i] * 0.5 + 0.5;
+    }
     for (size_t i = 0; i < n; i++)
     {
         label.assign(resLabels.begin() + i * k, resLabels.begin() + i * k + k);

@@ -13,9 +13,9 @@ INITIALIZE_EASYLOGGINGPP
 using namespace std;
 using namespace dev;
 
-bool writeToFile(vector<float> &data, string &filePath, idx_t d, idx_t n)
+bool writeToFile(vector<float> &data, string &filePath, int d, int n)
 {
-    idx_t header[5] = {0};
+    int header[5] = {0};
     ofstream out(filePath, ofstream::out | ofstream::binary);
     if (!out.is_open())
     {
@@ -25,9 +25,9 @@ bool writeToFile(vector<float> &data, string &filePath, idx_t d, idx_t n)
     header[1] = n;
     header[2] = 1;
     out.write((char *)header, sizeof(header));
-    for (idx_t i = 0; i < header[1]; i++)
+    for (int i = 0; i < header[1]; i++)
     {
-        out.write((char *)&i, sizeof(idx_t));
+        out.write((char *)&i, sizeof(int));
         out.write((char *)&data[i * header[0]], header[0] * sizeof(float));
     }
     out.close();
@@ -36,7 +36,7 @@ bool writeToFile(vector<float> &data, string &filePath, idx_t d, idx_t n)
 
 int main()
 {
-    int d = 512;     // dimension
+    int d = 256;     // dimension
     int nb = 200000; // database size
     int nq = 10000;  // nb of queries
 
@@ -57,7 +57,7 @@ int main()
             xq[d * i + j] = drand48();
         xq[d * i] += i / 1000.;
     }
-    shared_ptr<faissSearch> index(new faissSearch(searchMethod, d));
+    shared_ptr<faissSearch> index(new faissSearch(searchMethod, d, true, true));
 
     string fileName = "data.bin";
     if (!writeToFile(xb, fileName, d, nb))

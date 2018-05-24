@@ -23,7 +23,7 @@ def main():
         print 'Usage: python query.py [ip] [port]'
         return
     qtotal = 3
-    dim = 512
+    dim = 256
     k = 2
     dic = {}
     features =  [[0 for col in range(dim)] for row in range(qtotal)]

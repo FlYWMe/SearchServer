@@ -17,7 +17,7 @@ using namespace dev;
 
 int main()
 {
-    int d = 512;      // dimension
+    int d = 256;      // dimension
     int nb = 1000000; // database size
     int nq = 1;       // nb of queries
     string searchMethod("IDMap,Flat");
@@ -25,21 +25,43 @@ int main()
     vector<float> xb(d * nb, 0);
     vector<float> xq(d * nq, 0);
     vector<long> xid(nb, 0);
+    vector<float> sumb(nb, 0);
+    vector<float> sumq(nq, 0);
     for (int i = 0; i < nb; i++)
     {
         for (int j = 0; j < d; j++)
+        {
             xb[d * i + j] = drand48();
-        xb[d * i] += i / 1000.;
+            sumb[i] += xb[d * i + j] * xb[d * i + j];
+        }
+        sumb[i] = sqrt(sumb[i]);
         xid[i] = i;
     }
-
+    for (int i = 0; i < nb; i++)
+    {
+        for (int j = 0; j < d; j++)
+        {
+            xb[d * i + j] /= sumb[i];
+        }
+    }
     for (int i = 0; i < nq; i++)
     {
         for (int j = 0; j < d; j++)
+        {
             xq[d * i + j] = drand48();
-        xq[d * i] += i / 1000.;
+            sumq[i] += xq[d * i + j] * xq[d * i + j];
+        }
+        sumq[i] = sqrt(sumq[i]);        
     }
-    shared_ptr<faissSearch> index(new faissSearch(searchMethod, d, true));
+    for (int i = 0; i < nq; i++)
+    {
+        for (int j = 0; j < d; j++)
+        {
+            xq[d * i + j] /= sumq[i];
+        }
+    }
+
+    shared_ptr<faissSearch> index(new faissSearch(searchMethod, d, true, true));
     chrono::system_clock::time_point t1 = chrono::system_clock::now();
     index->add_with_ids(nb, xb.data(), xid.data()); // add vectors to the index
     chrono::system_clock::time_point t2 = chrono::system_clock::now();
@@ -63,7 +85,7 @@ int main()
         for (int i = 0; i < nq; i++)
         {
             for (int j = 0; j < k; j++)
-                cout << setprecision(3) << setw(5) << I[i * k + j] << " ";
+                cout << setprecision(3) << setw(8) << I[i * k + j] << " ";
             cout << endl;
         }
 
@@ -71,7 +93,7 @@ int main()
         for (int i = 0; i < nq; i++)
         {
             for (int j = 0; j < k; j++)
-                cout << setw(5) << D[i * k + j];
+                cout << setw(8) << D[i * k + j] << " ";
             cout << endl;
         }
     }
@@ -106,7 +128,7 @@ int main()
         vector<float> D(k * nq, 0);
         vector<float> xb1(xb.begin(), xb.begin() + nq * d);
         faiss::RangeSearchResult *result = new faiss::RangeSearchResult(nq);
-        float radius = 76.5;
+        float radius = 0.81;
 
         chrono::system_clock::time_point t6 = chrono::system_clock::now();
         new_index->search_range(nq, xb1.data(), radius, result);
@@ -117,11 +139,10 @@ int main()
         // print results
         for (int i = 0; i < nq; i++)
         {
-            cout << endl
-                 << "query " << i << " results:" << endl;
+            cout << "query " << i << " results:" << endl;
             for (size_t j = result->lims[i]; j < result->lims[i + 1]; j++)
             {
-                cout << setprecision(3) << setw(5) << result->labels[j] << ": " << result->distances[j] << " ";
+                cout << result->labels[j] << ": " << result->distances[j] << "  ";
             }
         }
     }
@@ -130,6 +151,6 @@ int main()
     process_mem_usage(&vm, &rss);
     vm /= double(1024 * 1024);
     rss /= double(1024 * 1024);
-    printf("done | VM %.1fgb | RSS %.1fgb     \n", vm, rss);
+    printf("\ndone | VM %.1fgb | RSS %.1fgb     \n", vm, rss);
     return 0;
 }

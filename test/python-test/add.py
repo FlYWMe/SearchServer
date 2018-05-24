@@ -24,7 +24,7 @@ def main():
         print 'Usage: python add.py [ip] [port]'
         return
     ntotal = 20000
-    dim = 512
+    dim = 256
     features = [[0 for col in range(dim)] for row in range(ntotal)]
     dic = {}
     for i in range(0, ntotal):

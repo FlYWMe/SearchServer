@@ -34,16 +34,29 @@ faissSearch::faissSearch(const string &indexKey, const int dimension, bool useGP
         options->storeTransposed = false;
         options->verbose = true;
         initGpuResources = true;
-        faissIndex.reset(faiss::gpu::index_cpu_to_gpu_multiple(res, devs, faissIndex.get()));
 #else
         LOG(WARNING) << "This release doesn't support GPU search";
 #endif
     }
+    if (usegpu)
+    {
+        faissIndex.reset(faiss::gpu::index_cpu_to_gpu_multiple(res, devs, faissIndex.get()));
+    }
 }
 
-void faissSearch::reset()
+bool faissSearch::reset()
 {
-    faissIndex->reset();
+    try
+    {
+        faissIndex->reset();
+        ntotal = faissIndex->ntotal;
+    }
+    catch (std::exception &e)
+    {
+        LOG(ERROR) << e.what();
+        return false;
+    }
+    return true;
 }
 
 bool faissSearch::load(const string &filePath, unordered_map<idx_t, vector<float>> &data)
@@ -53,7 +66,7 @@ bool faissSearch::load(const string &filePath, unordered_map<idx_t, vector<float
     {
         return false;
     }
-    unsigned int header[5] = {0};
+    int header[5] = {0};
     in.read((char *)header, sizeof(header));
     int dimension = header[0];
     unsigned int count = header[1];
@@ -86,7 +99,7 @@ bool faissSearch::load(const string &filePath, vector<idx_t> &ids, vector<float>
     in.read((char *)header, sizeof(header));
     int dimension = header[0];
     unsigned int count = header[1];
-    idx_t fileFormatVersion = header[2];
+    int fileFormatVersion = header[2];
     if (fileFormatVersion != 1 || dim != dimension)
     {
         in.close();
@@ -126,6 +139,10 @@ bool faissSearch::write_index(const char *filePath)
     catch (std::exception &e)
     {
         LOG(ERROR) << e.what();
+        if (usegpu)
+        {
+            faissIndex.reset(faiss::gpu::index_cpu_to_gpu_multiple(res, devs, faissIndex.get(), options));
+        }
         return false;
     }
     return true;
@@ -217,6 +234,10 @@ bool faissSearch::search_range(idx_t n, const float *data, float radius, faiss::
     catch (std::exception &e)
     {
         LOG(ERROR) << e.what();
+        if (usegpu)
+        {
+            faissIndex.reset(faiss::gpu::index_cpu_to_gpu_multiple(res, devs, faissIndex.get(), options));
+        }
         return false;
     }
     return true;

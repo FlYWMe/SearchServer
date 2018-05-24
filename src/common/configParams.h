@@ -21,7 +21,7 @@ struct ConfigParams
     int cpuCores = 0;
     std::string ip = "0.0.0.0";
     std::string searchFactory = "IDMap,Flat";
-    unsigned int dimension = 512;
+    unsigned int dimension = 256;
     std::string dataFilePath = "data.bin";
     bool usegpu = true;
 
